@@ -5,24 +5,31 @@ using System.Reflection;
 using Autofac;
 using AutofacExtension.Attributes;
 using AutofacExtension.Entity;
+using NLog;
 
 namespace AutofacExtension
 {
     public class ModuleExtension : Autofac.Module
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         protected void Register(Assembly assembly, ContainerBuilder builder)
         {
+            logger.Info("Start Register Type in Assembly: {0}", assembly.FullName);
             IEnumerable<RegisterEntity> types = GetTypesToRegister(assembly);
             foreach (var registerEntity in types)
             {
+                logger.Info("Register Type: {0}", registerEntity.OriginType.FullName);
                 builder.RegisterType(registerEntity.OriginType);
             }
             IEnumerable<RegisterAsTypeEntity> registerAsType = GetTypesAsOtherTypeRegister(assembly);
             foreach (var registerAsTypeEntity in registerAsType)
             {
+                logger.Info("Register Type: {0}", registerAsTypeEntity.OriginType.FullName);
                 builder.RegisterType(registerAsTypeEntity.OriginType);
                 foreach (var item in registerAsTypeEntity.RegisterType)
                 {
+                    logger.Info("Register Type: {0} as {1}", registerAsTypeEntity.OriginType.FullName, item.FullName);
                     builder.RegisterType(registerAsTypeEntity.OriginType).As(item);
                 }
             }
